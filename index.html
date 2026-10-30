@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d1b">
+<meta name="description" content="Test your internet connection with NetPulse. Check download speed, upload speed, ping and jitter for free.">
+<title>NetPulse — Internet Speed Test</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='85'%3E⚡%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#080d1b;--panel:#111b30;--line:#25334d;--muted:#9aa9c1;--cyan:#38bdf8;--purple:#8b5cf6;--angle:0deg}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 50% 0%,#17264a 0%,var(--bg) 48%);color:#f8fafc;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:19px max(5%,calc((100% - 1050px)/2));border-bottom:1px solid #ffffff12;background:#080d1bcc;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.logo{font-size:25px;font-weight:850;letter-spacing:-1px;color:var(--cyan)}
+.logo span{color:#fff}
+nav{display:flex;gap:20px}
+nav a,footer a{color:var(--muted);text-decoration:none;font-size:13px}
+nav a:hover,footer a:hover{color:var(--cyan)}
+main{max-width:920px;margin:auto;padding:45px 18px 30px;text-align:center}
+.eyebrow{display:inline-block;color:#9bdfff;background:#38bdf81a;border:1px solid #38bdf833;border-radius:30px;padding:7px 13px;font-size:12px;font-weight:700;letter-spacing:.08em}
+h1{font-size:clamp(29px,5vw,43px);margin:17px 0 8px;letter-spacing:-1.4px}
+.subtitle{color:var(--muted);margin:0 auto 25px;max-width:520px;line-height:1.6}
+.test-panel{background:linear-gradient(145deg,#111c32ed,#0d1528ed);border:1px solid var(--line);border-radius:25px;padding:28px 20px 25px;box-shadow:0 22px 70px #0005}
+.gauge{width:min(260px,72vw);aspect-ratio:1;border-radius:50%;margin:2px auto 20px;display:grid;place-items:center;position:relative;background:conic-gradient(from 225deg,#38bdf8 0deg,#8b5cf6 var(--angle),#26334c var(--angle),#26334c 270deg,transparent 270deg 360deg);filter:drop-shadow(0 0 20px #2563eb25)}
+.gauge:before{content:"";position:absolute;inset:12px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#14213b,#080d1b 72%);border:1px solid #ffffff12}
+.gauge-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:12px}
+#speed{font-size:clamp(43px,10vw,58px);font-weight:800;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.unit{font-size:13px;color:var(--muted);margin-top:-2px}
+.gauge-label{font-size:11px;color:#7dd3fc;letter-spacing:.16em;font-weight:800;margin-top:12px}
+.needle{position:absolute;z-index:2;width:3px;height:82px;left:calc(50% - 1.5px);top:48px;transform-origin:50% calc(100% - 2px);transform:rotate(-135deg);border-radius:5px;background:linear-gradient(to top,#8b5cf6,#e0f2fe);box-shadow:0 0 10px #38bdf8;transition:transform .35s ease}
+.needle:after{content:"";position:absolute;bottom:-8px;left:-5px;width:13px;height:13px;background:#e0f2fe;border:3px solid #38bdf8;border-radius:50%}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+button{border:0;border-radius:30px;padding:14px 27px;color:white;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s,opacity .15s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.5;cursor:wait}
+.primary{background:linear-gradient(100deg,#2563eb,#9333ea);box-shadow:0 8px 25px #4f46e544}
+.secondary{background:#1b2942;border:1px solid #334766}
+#status{color:#a5dfff;min-height:24px;margin:17px 0 9px;font-size:14px}
+.progress{height:6px;background:#26334c;border-radius:20px;overflow:hidden;max-width:430px;margin:0 auto}
+#progressFill{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#8b5cf6);border-radius:20px;transition:width .3s}
+.results{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+.stat{background:#0b1427;border:1px solid var(--line);border-radius:16px;padding:18px 8px}
+.stat .symbol{font-size:17px;color:var(--cyan)}
+.stat strong{display:block;font-size:25px;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+.stat span:last-child{font-size:11px;color:var(--muted);letter-spacing:.06em}
+.info{color:#7788a3;font-size:12px;line-height:1.6;margin:17px auto 0;max-width:590px}
+.content{max-width:760px;margin:38px auto 0;text-align:left}
+.content h2{text-align:center;font-size:23px}
+.content p,.content li{color:var(--muted);line-height:1.8}
+.content-card{background:#101a2e;border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:15px}
+footer{text-align:center;color:#71819b;padding:30px 15px 40px;font-size:12px}
+footer .links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:12px}
+@media(max-width:620px){header{padding:16px 18px}.logo{font-size:22px}nav{gap:12px}nav a{font-size:12px}main{padding-top:32px}.test-panel{padding:23px 12px 20px}.results{grid-template-columns:repeat(2,1fr)}.stat{padding:16px 6px}.needle{height:70px;top:42px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⚡ Net<span>Pulse</span></div>
+  <nav><a href="#test">Speed Test</a><a href="#about">About</a></nav>
+</header>
+
+<main>
+  <div class="eyebrow">FREE INTERNET SPEED TEST</div>
+  <h1>How fast is your internet?</h1>
+  <p class="subtitle">Measure your connection with a quick browser-based test. No app or account required.</p>
+
+  <section class="test-panel" id="test" aria-label="Internet speed test">
+    <div class="gauge" id="gauge">
+      <div class="needle" id="needle"></div>
+      <div class="gauge-content">
+        <div id="speed">0.00</div>
+        <div class="unit">Mbps</div>
+        <div class="gauge-label" id="gaugeLabel">READY</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="start" type="button">START TEST</button>
+      <button class="secondary" id="share" type="button" hidden>SHARE RESULTS</button>
+    </div>
+    <div id="status" role="status" aria-live="polite">Ready when you are.</div>
+    <div class="progress" aria-label="Test progress"><div id="progressFill"></div></div>
+
+    <div class="results" aria-label="Test results">
+      <div class="stat"><div class="symbol">↓</div><strong id="download">--</strong><span>DOWNLOAD · Mbps</span></div>
+      <div class="stat"><div class="symbol">↑</div><strong id="upload">--</strong><span>UPLOAD · Mbps</span></div>
+      <div class="stat"><div class="symbol">◉</div><strong id="ping">--</strong><span>PING · ms</span></div>
+      <div class="stat"><div class="symbol">〰</div><strong id="jitter">--</strong><span>JITTER · ms</span></div>
+    </div>
+    <p class="info">Speed test results are estimates and can vary with Wi-Fi signal, network congestion, device performance and distance to the test server. Testing uses mobile data or Wi-Fi data.</p>
+  </section>
+
+  <section class="content" id="about">
+    <h2>About NetPulse</h2>
+    <div class="content-card">
+      <p>NetPulse is a simple, free internet speed testing tool that helps you understand how your connection is performing. It measures download speed, upload speed, ping and jitter directly in your browser.</p>
+      <p><strong>Download speed</strong> describes how quickly data reaches your device. <strong>Upload speed</strong> describes how quickly your device sends data. <strong>Ping</strong> measures response time, while <strong>jitter</strong> describes changes in response time.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="links"><a href="#test">Speed Test</a><a href="#about">About</a></div>
+  © 2026 NetPulse. All rights reserved.
+</footer>
+
+<script>
+const endpoint = "https://speed.cloudflare.com";
+const $ = id => document.getElementById(id);
+let latestResults = null;
+
+function setProgress(value, message) {
+  $("progressFill").style.width = Math.max(0, Math.min(100, value)) + "%";
+  $("status").textContent = message;
+}
+function showSpeed(value) {
+  $("speed").textContent = value.toFixed(2);
+  // The gauge is a visual indicator, capped so very fast connections remain readable.
+  const fraction = Math.min(value / 200, 1);
+  const angle = fraction * 270;
+  $("gauge").style.setProperty("--angle", angle + "deg");
+  $("needle").style.transform = `rotate(${-135 + fraction * 270}deg)`;
+}
+async function timedFetch(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {...options, signal: controller.signal});
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function measurePing() {
+  const samples = [];
+  for (let i = 0; i < 8; i++) {
+    const start = performance.now();
+    const response = await timedFetch(`${endpoint}/__down?bytes=0&cb=${Date.now()}-${i}`, {cache:"no-store"}, 10000);
+    if (!response.ok) throw new Error("Ping request failed");
+    await response.arrayBuffer();
+    samples.push(performance.now() - start);
+  }
+  const average = samples.reduce((a,b) => a+b, 0) / samples.length;
+  const changes = samples.slice(1).map((v,i) => Math.abs(v - samples[i]));
+  const jitter = changes.reduce((a,b) => a+b, 0) / changes.length;
+  return {ping: average, jitter};
+}
+async function measureDownload() {
+  const start = performance.now();
+  const response = await timedFetch(`${endpoint}/__down?bytes=5000000&cb=${Date.now()}`, {cache:"no-store"}, 30000);
+  if (!response.ok) throw new Error("Download test failed");
+  const data = await response.arrayBuffer();
+  const seconds = (performance.now() - start) / 1000;
+  if (!seconds || !data.byteLength) throw new Error("Download test returned no data");
+  return data.byteLength * 8 / seconds / 1000000;
+}
+async function measureUpload() {
+  const data = new Uint8Array(2000000);
+  const start = performance.now();
+  const response = await timedFetch(`${endpoint}/__up?cb=${Date.now()}`, {method:"POST", body:data, cache:"no-store"}, 30000);
+  if (!response.ok) throw new Error("Upload test failed");
+  await response.arrayBuffer();
+  const seconds = (performance.now() - start) / 1000;
+  if (!seconds) throw new Error("Upload test took too little time to measure");
+  return data.byteLength * 8 / seconds / 1000000;
+}
+async function startTest() {
+  const button = $("start");
+  button.disabled = true;
+  $("share").hidden = true;
+  latestResults = null;
+  ["download","upload","ping","jitter"].forEach(id => $(id).textContent = "--");
+  showSpeed(0);
+  button.textContent = "TESTING...";
+  try {
+    setProgress(5, "Measuring ping and jitter...");
+    const latency = await measurePing();
+    $("ping").textContent = latency.ping.toFixed(1);
+    $("jitter").textContent = latency.jitter.toFixed(1);
+
+    setProgress(35, "Measuring download speed...");
+    const download = await measureDownload();
+    $("download").textContent = download.toFixed(2);
+    showSpeed(download);
+
+    setProgress(70, "Measuring upload speed...");
+    const upload = await measureUpload();
+    $("upload").textContent = upload.toFixed(2);
+
+    latestResults = {download, upload, ping:latency.ping, jitter:latency.jitter};
+    setProgress(100, "Test complete! Your results are ready.");
+    $("gaugeLabel").textContent = "COMPLETE";
+    $("share").hidden = false;
+  } catch (error) {
+    console.error(error);
+    const message = error.name === "AbortError" ? "The test timed out. Please try again." : "The test couldn't finish. Check your connection and try again.";
+    setProgress(0, message);
+    $("gaugeLabel").textContent = "ERROR";
+  } finally {
+    button.disabled = false;
+    button.textContent = "TEST AGAIN";
+  }
+}
+$("start").addEventListener("click", startTest);
+$("share").addEventListener("click", async () => {
+  if (!latestResults) return;
+  const r = latestResults;
+  const text = `My internet speed test results on NetPulse:\nDownload: ${r.download.toFixed(2)} Mbps\nUpload: ${r.upload.toFixed(2)} Mbps\nPing: ${r.ping.toFixed(1)} ms\nJitter: ${r.jitter.toFixed(1)} ms\nhttps://fortysixxsolutions.github.io/netpulse/`;
+  try {
+    if (navigator.share) await navigator.share({title:"My NetPulse results", text});
+    else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      $("status").textContent = "Results copied. You can paste them anywhere.";
+    } else {
+      $("status").textContent = "Sharing isn't supported by this browser.";
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") $("status").textContent = "Couldn't share results on this device.";
+  }
+});
+</script>
+</body>
+</html>
