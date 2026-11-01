@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070820">
+<meta name="description" content="NetPulse is a free internet speed test. Measure download speed, upload speed, ping and jitter.">
+<title>NetPulse — Internet Speed Test</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='85'%3E⚡%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050615;--panel:#0b0d2b;--panel2:#101337;--line:#24264d;
+  --muted:#9297bd;--white:#f7f7ff;--red:#ff5368;--orange:#ff8957;
+  --cyan:#71d9ff;--green:#62e6bd;--angle:0deg;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--white);
+  background:radial-gradient(ellipse at 50% 0%,#15143d 0%,#08091e 38%,var(--bg) 78%);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+}
+header{
+  width:min(1240px,100%);margin:auto;padding:24px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1.2px}
+.logo .bolt{color:var(--red);margin-right:7px}
+.logo span{color:#ff7180}
+nav{display:flex;gap:26px}
+nav a,footer a{color:#a5a8c7;text-decoration:none;font-size:13px;transition:color .2s}
+nav a:hover,footer a:hover{color:#fff}
+.header-tag{font-size:11px;color:#b6b8d3;border:1px solid #34365e;border-radius:30px;padding:8px 13px;letter-spacing:.08em}
+main{width:min(1240px,100%);margin:auto;padding:30px 28px 55px}
+.intro{text-align:center;margin:4px 0 27px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;color:#ff8791}
+h1{font-size:clamp(26px,4vw,39px);letter-spacing:-1.5px;margin:11px 0 8px}
+.subtitle{color:var(--muted);font-size:13px;line-height:1.7;margin:0}
+.dashboard{
+  position:relative;overflow:hidden;display:grid;
+  grid-template-columns:minmax(150px, .8fr) minmax(300px,1.5fr) minmax(170px,.8fr);
+  gap:22px;align-items:center;padding:34px 34px 27px;
+  border:1px solid #292b59;border-radius:27px;
+  background:
+    radial-gradient(circle at 50% 45%,#1b1748 0%,#101136 34%,transparent 68%),
+    linear-gradient(135deg,#0d1034,#080a25 70%);
+  box-shadow:0 28px 90px #0009, inset 0 1px #ffffff0b;
+}
+.dashboard:before,.dashboard:after{content:"";position:absolute;pointer-events:none;border:1px solid #ffffff08;border-radius:50%;width:560px;height:560px;left:50%;top:48%;transform:translate(-50%,-50%)}
+.dashboard:after{width:420px;height:420px}
+.side-info,.center-stage,.metrics{position:relative;z-index:1}
+.side-info{display:flex;flex-direction:column;gap:21px}
+.info-item{display:flex;align-items:center;gap:11px}
+.info-icon{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:#ff536817;color:#ff7d8b;font-size:14px;flex:none}
+.info-copy small{display:block;color:#777da9;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.info-copy strong{font-size:11px;font-weight:600;color:#e5e6fa;overflow-wrap:anywhere}
+.server-note{margin-top:9px;padding-top:16px;border-top:1px solid #ffffff12;color:#8e93ba;font-size:10px;line-height:1.7}
+.center-stage{text-align:center;min-width:0}
+.section-label{font-size:12px;letter-spacing:.19em;font-weight:700;color:#f4f2ff;margin-bottom:15px}
+.gauge-wrap{width:min(330px,100%);aspect-ratio:1;margin:0 auto;position:relative;display:grid;place-items:center}
+.gauge{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 225deg,var(--red) 0deg,var(--orange) var(--angle),#343456 var(--angle),#343456 270deg,transparent 270deg 360deg);
+  filter:drop-shadow(0 0 17px #ff536833);
+  -webkit-mask:radial-gradient(circle,transparent 63%,#000 64%,#000 68%,transparent 69%);
+  mask:radial-gradient(circle,transparent 63%,#000 64%,#000 68%,transparent 69%);
+  transform:rotate(0deg);
+}
+.gauge-inner{position:absolute;inset:13%;border:1px solid #ffffff0a;border-radius:50%;background:radial-gradient(circle at 50% 42%,#171743,#0b0d2b 72%);box-shadow:inset 0 0 35px #0005}
+.tick-ring{position:absolute;inset:8%;border-radius:50%;border:1px dashed #ffffff16}
+.needle{
+  position:absolute;z-index:2;width:3px;height:34%;left:calc(50% - 1.5px);top:16%;
+  transform-origin:50% 100%;transform:rotate(-135deg);
+  border-radius:10px;background:linear-gradient(to top,#ff5368,#ffc0a1);
+  box-shadow:0 0 12px #ff5368a8;transition:transform .4s ease;
+}
+.needle:after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:#ff8b79;left:-4.5px;bottom:-6px;box-shadow:0 0 12px #ff5368}
+.gauge-content{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-top:10px}
+.speed-icon{color:#ff6678;font-size:17px;margin-bottom:7px}
+#speed{font-size:clamp(43px,6vw,59px);font-weight:700;letter-spacing:-2.5px;font-variant-numeric:tabular-nums;line-height:1}
+.unit{font-size:11px;color:#9297bd;margin-top:7px}
+.gauge-label{font-size:10px;color:#ff8791;letter-spacing:.17em;font-weight:800;margin-top:13px}
+.latency-line{font-size:10px;color:#aeb0d0;margin-top:15px}
+.latency-line strong{color:#ff8791}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:6px}
+button{border:0;cursor:pointer;font:700 12px Inter,system-ui,sans-serif;letter-spacing:.06em;transition:transform .15s,opacity .2s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.55;cursor:wait}
+.primary{padding:13px 25px;border-radius:30px;color:white;background:linear-gradient(100deg,#ff5368,#ff8957);box-shadow:0 8px 24px #ff536833}
+.secondary{padding:13px 20px;border-radius:30px;color:#e7e8ff;background:#24264c;border:1px solid #41436e}
+.metrics{display:flex;flex-direction:column;gap:12px}
+.metric-card{min-height:91px;padding:15px 17px;border-radius:16px;background:linear-gradient(145deg,#1a1d49,#111435);border:1px solid #ffffff0d;box-shadow:0 10px 25px #0002}
+.metric-top{display:flex;align-items:center;gap:8px;color:#ff7a89;font-size:10px;font-weight:600}
+.metric-top .symbol{font-size:14px}
+.metric-card strong{display:block;font-size:29px;letter-spacing:-1px;margin:7px 0 2px;font-variant-numeric:tabular-nums}
+.metric-card small{font-size:10px;color:#9297bd}
+.status-area{margin:21px auto 0;max-width:440px;text-align:center}
+#status{min-height:20px;color:#b7b9d8;font-size:12px}
+.progress{height:4px;background:#292b50;border-radius:10px;overflow:hidden}
+#progressFill{height:100%;width:0;background:linear-gradient(90deg,#ff5368,#ffab68);border-radius:10px;transition:width .3s}
+.dashboard-footer{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:15px;border-top:1px solid #ffffff10;margin-top:25px;padding-top:17px;color:#858ab1;font-size:10px}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 9px #62e6bd}
+.content{max-width:780px;margin:55px auto 0;text-align:center}
+.content h2{font-size:22px;letter-spacing:-.5px}
+.content p{color:var(--muted);font-size:13px;line-height:1.9}
+.content-card{padding:22px 25px;border:1px solid #25274d;border-radius:18px;background:#0c0e29}
+footer{text-align:center;padding:28px 15px 38px;color:#74799f;font-size:11px}
+footer .links{display:flex;justify-content:center;gap:20px;margin-bottom:12px}
+[hidden]{display:none!important}
+@media(max-width:800px){
+  main{padding:22px 17px 42px}
+  .dashboard{grid-template-columns:1fr 1.5fr;gap:20px;padding:25px 22px}
+  .side-info{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .server-note{display:none}
+  .center-stage{grid-column:2;grid-row:2}
+  .metrics{grid-column:1;grid-row:2}
+  .metric-card{min-height:78px;padding:12px}
+  .metric-card strong{font-size:24px}
+  .gauge-wrap{width:min(290px,100%)}
+}
+@media(max-width:540px){
+  header{padding:19px 18px}
+  .logo{font-size:21px}
+  .header-tag{font-size:9px;padding:7px 9px}
+  nav{gap:14px}
+  nav a{font-size:11px}
+  main{padding:18px 12px 35px}
+  .intro{margin-bottom:19px}
+  .subtitle{max-width:310px}
+  .dashboard{display:flex;flex-direction:column;gap:20px;padding:22px 15px 18px;border-radius:21px}
+  .side-info{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .info-item{align-items:flex-start;gap:7px;min-width:0}
+  .info-icon{width:26px;height:26px;border-radius:8px;font-size:12px}
+  .info-copy small{font-size:8px}
+  .info-copy strong{font-size:9px}
+  .center-stage{width:100%;order:2}
+  .gauge-wrap{width:min(290px,82vw)}
+  .metrics{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;order:3}
+  .metric-card{min-height:78px;padding:10px 8px;border-radius:13px}
+  .metric-top{font-size:9px;gap:4px}
+  .metric-card strong{font-size:21px;margin:6px 0 1px}
+  .metric-card small{font-size:9px}
+  .dashboard-footer{width:100%;font-size:9px;margin-top:2px}
+  .content{margin-top:38px}
+  .content-card{padding:17px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="bolt">ϟ</span>Net<span>Pulse</span></div>
+  <nav><a href="#test">Speed Test</a><a href="#about">About</a></nav>
+  <div class="header-tag">NETWORK DIAGNOSTICS</div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="eyebrow">YOUR CONNECTION, DECODED</div>
+    <h1>Internet Speed Test</h1>
+    <p class="subtitle">Measure your connection speed in seconds. Simple, accurate and free.</p>
+  </section>
+
+  <section class="dashboard" id="test" aria-label="NetPulse internet speed test">
+    <aside class="side-info">
+      <div class="info-item">
+        <div class="info-icon">⌁</div>
+        <div class="info-copy"><small>Connection</small><strong id="connectionType">Browser test</strong></div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">◉</div>
+        <div class="info-copy"><small>Test server</small><strong>Cloudflare</strong></div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">⌖</div>
+        <div class="info-copy"><small>Test mode</small><strong>Automatic</strong></div>
+      </div>
+      <div class="server-note">NETPULSE NETWORK CHECK<br>Results depend on your device, Wi-Fi signal and network conditions.</div>
+    </aside>
+
+    <div class="center-stage">
+      <div class="section-label">SPEED TEST</div>
+      <div class="gauge-wrap" id="gaugeWrap">
+        <div class="gauge-inner"></div>
+        <div class="tick-ring"></div>
+        <div class="gauge" id="gauge"></div>
+        <div class="needle" id="needle"></div>
+        <div class="gauge-content">
+          <div class="speed-icon">⌁</div>
+          <div id="speed">0.00</div>
+          <div class="unit">MEGABITS PER SECOND</div>
+          <div class="gauge-label" id="gaugeLabel">READY TO TEST</div>
+          <div class="latency-line">Ping <strong id="centerPing">-- ms</strong></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="start" type="button">START TEST</button>
+        <button class="secondary" id="share" type="button" hidden>SHARE RESULTS</button>
+      </div>
+    </div>
+
+    <aside class="metrics" aria-label="Test results">
+      <div class="metric-card">
+        <div class="metric-top"><span class="symbol">↓</span> DOWNLOAD</div>
+        <strong id="download">--</strong><small>Mbps</small>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top"><span class="symbol">↑</span> UPLOAD</div>
+        <strong id="upload">--</strong><small>Mbps</small>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top"><span class="symbol">⌁</span> PING</div>
+        <strong id="ping">--</strong><small>milliseconds</small>
+      </div>
+    </aside>
+
+    <div class="dashboard-footer">
+      <span><i class="live-dot"></i>NETPULSE TEST ENGINE</span>
+      <span>Jitter: <strong id="jitter" style="color:#e6e7ff">--</strong> ms</span>
+    </div>
+  </section>
+
+  <div class="status-area">
+    <div id="status" role="status" aria-live="polite">Ready when you are. Press Start Test to begin.</div>
+    <div class="progress" aria-label="Test progress"><div id="progressFill"></div></div>
+  </div>
+
+  <section class="content" id="about">
+    <h2>About NetPulse</h2>
+    <div class="content-card">
+      <p>NetPulse is a free browser-based internet speed test. It measures download speed, upload speed, ping and jitter to help you understand how your connection is performing.</p>
+      <p><strong>Download</strong> measures how quickly data reaches your device. <strong>Upload</strong> measures how quickly your device sends data. <strong>Ping</strong> measures response time, while <strong>jitter</strong> measures variation in response time.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="links"><a href="#test">Speed Test</a><a href="#about">About</a></div>
+  © 2026 NetPulse. All rights reserved.
+</footer>
+
+<script>
+const endpoint = "https://speed.cloudflare.com";
+const $ = id => document.getElementById(id);
+let latestResults = null;
+
+function setProgress(value, message) {
+  $("progressFill").style.width = Math.max(0, Math.min(100, value)) + "%";
+  $("status").textContent = message;
+}
+function showSpeed(value) {
+  $("speed").textContent = value.toFixed(2);
+  // The display scale is capped at 200 Mbps so very fast connections remain readable.
+  const fraction = Math.min(value / 200, 1);
+  $("gauge").style.setProperty("--angle", (fraction * 270) + "deg");
+  $("needle").style.transform = `rotate(${-135 + fraction * 270}deg)`;
+}
+async function timedFetch(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {...options, signal: controller.signal});
+  } finally {
+    clearTimeout(timer);
+  }
+}
+async function measurePing() {
+  const samples = [];
+  for (let i = 0; i < 8; i++) {
+    const start = performance.now();
+    const response = await timedFetch(`${endpoint}/__down?bytes=0&cb=${Date.now()}-${i}`, {cache:"no-store"}, 10000);
+    if (!response.ok) throw new Error("Ping request failed");
+    await response.arrayBuffer();
+    samples.push(performance.now() - start);
+  }
+  const average = samples.reduce((a,b) => a+b, 0) / samples.length;
+  const changes = samples.slice(1).map((v,i) => Math.abs(v - samples[i]));
+  const jitter = changes.reduce((a,b) => a+b, 0) / changes.length;
+  return {ping: average, jitter};
+}
+async function measureDownload() {
+  const start = performance.now();
+  const response = await timedFetch(`${endpoint}/__down?bytes=5000000&cb=${Date.now()}`, {cache:"no-store"}, 30000);
+  if (!response.ok) throw new Error("Download test failed");
+  const data = await response.arrayBuffer();
+  const seconds = (performance.now() - start) / 1000;
+  if (!seconds || !data.byteLength) throw new Error("Download test returned no data");
+  return data.byteLength * 8 / seconds / 1000000;
+}
+async function measureUpload() {
+  const data = new Uint8Array(2000000);
+  const start = performance.now();
+  const response = await timedFetch(`${endpoint}/__up?cb=${Date.now()}`, {method:"POST", body:data, cache:"no-store"}, 30000);
+  if (!response.ok) throw new Error("Upload test failed");
+  await response.arrayBuffer();
+  const seconds = (performance.now() - start) / 1000;
+  if (!seconds) throw new Error("Upload test took too little time to measure");
+  return data.byteLength * 8 / seconds / 1000000;
+}
+async function startTest() {
+  const button = $("start");
+  button.disabled = true;
+  $("share").hidden = true;
+  latestResults = null;
+  ["download","upload","ping","jitter"].forEach(id => $(id).textContent = "--");
+  $("centerPing").textContent = "-- ms";
+  showSpeed(0);
+  $("gaugeLabel").textContent = "TESTING";
+  button.textContent = "TESTING...";
+  try {
+    setProgress(5, "Measuring ping and jitter...");
+    const latency = await measurePing();
+    $("ping").textContent = latency.ping.toFixed(1);
+    $("jitter").textContent = latency.jitter.toFixed(1);
+    $("centerPing").textContent = latency.ping.toFixed(1) + " ms";
+
+    setProgress(35, "Measuring download speed...");
+    const download = await measureDownload();
+    $("download").textContent = download.toFixed(2);
+    showSpeed(download);
+
+    setProgress(70, "Measuring upload speed...");
+    const upload = await measureUpload();
+    $("upload").textContent = upload.toFixed(2);
+
+    latestResults = {download, upload, ping:latency.ping, jitter:latency.jitter};
+    setProgress(100, "Test complete! Your results are ready.");
+    $("gaugeLabel").textContent = "TEST COMPLETE";
+    $("share").hidden = false;
+  } catch (error) {
+    console.error(error);
+    const message = error.name === "AbortError"
+      ? "The test timed out. Please try again."
+      : "The test couldn't finish. Check your connection and try again.";
+    setProgress(0, message);
+    $("gaugeLabel").textContent = "TEST ERROR";
+  } finally {
+    button.disabled = false;
+    button.textContent = "TEST AGAIN";
+  }
+}
+$("start").addEventListener("click", startTest);
+$("share").addEventListener("click", async () => {
+  if (!latestResults) return;
+  const r = latestResults;
+  const text = `My internet speed test results on NetPulse:\nDownload: ${r.download.toFixed(2)} Mbps\nUpload: ${r.upload.toFixed(2)} Mbps\nPing: ${r.ping.toFixed(1)} ms\nJitter: ${r.jitter.toFixed(1)} ms\nhttps://fortysixxsolutions.github.io/netpulse/`;
+  try {
+    if (navigator.share) await navigator.share({title:"My NetPulse results", text});
+    else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      $("status").textContent = "Results copied. You can paste them anywhere.";
+    } else {
+      $("status").textContent = "Sharing isn't supported by this browser.";
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") $("status").textContent = "Couldn't share results on this device.";
+  }
+});
+</script>
+</body>
+</html>
